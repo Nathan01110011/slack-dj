@@ -1,0 +1,18 @@
+{
+  "name": "slack-dj",
+  "version": "1.0.0",
+  "description": "Control mopidy server on Slack",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@slack/events-api": "^2.3.1",
+    "@slack/rtm-api": "^5.0.3",
+    "@slack/web-api": "^5.7.0",
+    "mopidy": "^1.0.1",
+    "node-cleanup": "^2.1.2"
+  }
+}
