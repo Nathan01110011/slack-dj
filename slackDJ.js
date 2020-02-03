@@ -4,13 +4,12 @@ const Mopidy = require("mopidy");
 
 // TODO: This will need changed to a localhost port when moved to the pi
 const mopidy = new Mopidy({
-  webSocketUrl: "ws://192.168.4.169:6680/mopidy/ws"
+  webSocketUrl: "ws://localhost:6680/mopidy/ws"
 });
 
 mopidy.on("state", console.log);
 mopidy.on("event", console.log);
 
-// Coversation ID would be a good environment variable I think
 const token = process.env.SLACK_TOKEN;
 const rtm = new RTMClient(token);
 const conversationId = process.env.SLACK_CHANNEL;
