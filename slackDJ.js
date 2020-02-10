@@ -52,7 +52,7 @@ async function mopidyFunctionality(command, options) {
   if (comm == null || options === undefined) {
     response = "Unrecognised command";
   } else {
-    response = await comm[0].execute(options, mopidy);
+    response = await comm[0].execute(options, mopidy).catch();
   }
   rtm.sendMessage(response, conversationId);
 }
