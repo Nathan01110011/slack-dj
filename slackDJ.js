@@ -1,7 +1,7 @@
 const { RTMClient } = require("@slack/rtm-api");
 const nodeCleanup = require("node-cleanup");
 const Mopidy = require("mopidy");
-const { setMusicState, addSong, showPlaying } = require("./functions.js");
+const { commands } = require("./commands");
 
 const mopidy = new Mopidy({
   webSocketUrl: "ws://localhost:6680/mopidy/ws"
@@ -16,6 +16,7 @@ const conversationId = process.env.SLACK_CHANNEL;
 const rtm = new RTMClient(token);
 
 rtm.start().catch(console.error);
+
 rtm.on("hello", async () => {
   const res = await rtm.sendMessage("Hello!", conversationId);
   console.log("Message sent: ", res.ts);
@@ -28,28 +29,30 @@ rtm.on("message", event => {
 
 function parseMessage(message) {
   const botCheck = message.text.split(/\s(.+)/);
-  console.log(message);
+
   if (botCheck[0] === botID) {
     if (userCheck(message.user)) {
       return;
     }
 
     console.log("Bot is mentioned");
-
-    const command = botCheck[1].split(/\s(.+)/);
-    console.log("command = " + command[0] + ", options = " + command[1]);
-    mopidyFunctionality(command[0].toLowerCase(), command[1]);
+    try {
+      const command = botCheck[1].split(/\s(.+)/);
+      console.log("command = " + command[0] + ", options = " + command[1]);
+      mopidyFunctionality(command[0].toLowerCase(), command[1]);
+    } catch (err) {
+      console.error("Incorrect command format");
+    }
   }
 }
 
 async function mopidyFunctionality(command, options) {
   var response;
-  if (command === "what") {
-    response = await showPlaying(mopidy, rtm).catch();
-  } else if (command === "play") {
-    response = await addSong(options, mopidy).catch();
-  } else if (command === "music") {
-    response = await setMusicState(options, mopidy).catch();
+  const comm = commands.filter(f => f.name == command);
+  if (comm == null || options === undefined) {
+    response = "Unrecognised command";
+  } else {
+    response = await comm[0].execute(options, mopidy);
   }
   rtm.sendMessage(response, conversationId);
 }
