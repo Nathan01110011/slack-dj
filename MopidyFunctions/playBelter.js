@@ -1,21 +1,20 @@
 async function playBelter(options, mopidy) {
   const belters = await mopidy.library
     .search({
-      query: { uri: ["spotify:playlist:3xVCCnIZV6a2gvmvcYWOSP"] },
-      uris: ["spotify:"]
+      query: { uri: [`spotify:playlist:3xVCCnIZV6a2gvmvcYWOSP`] },
+      uris: [`spotify:`]
     })
     .catch(function(error) {
-      return "Something is broke :(";
+      return `Something is broke :(`;
     });
 
-  const beltersSize = belters[0].tracks.length;
-  const belterSelect = Date.now() % (beltersSize - 1);
+  const belterSelect = Date.now() % (belters[0].tracks.length - 1);
 
   const track = belters[0].tracks[belterSelect];
   var trackSelected;
   if (track) {
     mopidy.tracklist.add({ uris: [track.uri] });
-    trackSelected = "Coming up: " + track.name + " by " + track.artists[0].name;
+    trackSelected = `Coming up: ` + track.name + ` by ` + track.artists[0].name;
   }
   return trackSelected;
 }

@@ -1,19 +1,21 @@
-// TODO: Add check for state
-
 async function showPlaying(options, mopidy) {
   let currentlyPlaying;
   try {
     const track = await mopidy.playback.getCurrentTrack();
+    const state = await mopidy.playback.getState();
     if (track) {
       currentlyPlaying =
-        "Currently playing: " + track.name + " by " + track.artists[0].name;
+        track.name +
+        ` by ` +
+        track.artists[0].name +
+        ` is currently ` +
+        state +
+        `!`;
     } else {
-      currentlyPlaying = "No music is currently playing!";
+      currentlyPlaying = `No music is currently playing!`;
     }
   } catch (e) {
-    console.warn("Something went wrong", e);
-    currentlyPlaying =
-      "Don't know what's happened here, try again later ¯\\_(ツ)_/¯";
+    currentlyPlaying = `Don't know what's happened here, try again later ¯\\_(ツ)_/¯`;
   }
   return currentlyPlaying;
 }
