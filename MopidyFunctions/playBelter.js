@@ -1,4 +1,4 @@
-async function playBelter(options, mopidy) {
+async function playBelter(mopidy) {
   const belters = await mopidy.library
     .search({
       query: { uri: [`spotify:playlist:3xVCCnIZV6a2gvmvcYWOSP`] },

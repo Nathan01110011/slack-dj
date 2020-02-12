@@ -1,4 +1,6 @@
-async function showPlaying(options, mopidy) {
+// TODO : UP NEXT
+
+async function showPlaying(mopidy) {
   let currentlyPlaying;
   try {
     const track = await mopidy.playback.getCurrentTrack();

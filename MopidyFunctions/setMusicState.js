@@ -1,8 +1,11 @@
-async function setMusicState(newState, mopidy) {
-  if (newState === `pause`) {
+async function setMusicState(mopidy, options) {
+  if (options === undefined) {
+    return "What do you want to do with the music? Play/Pause?";
+  }
+  if (options === `pause`) {
     await mopidy.playback.pause().catch();
     return `Music now *_not_* playing!`;
-  } else if (newState === `play`) {
+  } else if (options === `play`) {
     await mopidy.playback.play().catch();
     return `Music now playing!`;
   } else {

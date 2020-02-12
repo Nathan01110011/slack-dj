@@ -7,6 +7,9 @@ const token = process.env.SLACK_TOKEN;
 const botID = process.env.SLACK_DJ_ID;
 const conversationId = process.env.SLACK_CHANNEL;
 
+var skippers;
+var requestCheck;
+
 const rtm = new RTMClient(token);
 rtm.start().catch(console.error);
 rtm.on(`hello`, async () => {
@@ -18,7 +21,6 @@ rtm.on(`message`, event => {
   parseMessage(event);
 });
 
-// TODO : Think about a better way to startup (e.g only connect to mopidy server when it is up)
 const mopidy = new Mopidy({
   autoConnect: false,
   webSocketUrl: `ws://localhost:6680/mopidy/ws`,
@@ -30,6 +32,9 @@ mopidy.on(`event`, console.log);
 mopidy.on(`state:online`, () => {
   rtm.sendMessage(`Throw me some tunes! I'm ready to go!`, conversationId);
 });
+mopidy.on(`event:trackPlaybackStarted`, () => {
+  skipCount = 0;
+});
 
 function parseMessage(message) {
   const botCheck = message.text.split(/\s(.+)/);
@@ -40,20 +45,20 @@ function parseMessage(message) {
     }
     try {
       const command = botCheck[1].split(/\s(.+)/);
-      mopidyFunctionality(command[0].toLowerCase(), command[1]);
+      mopidyFunctionality(command[0].toLowerCase(), command[1], message.user);
     } catch (err) {
       console.error(`Incorrect command format`);
     }
   }
 }
 
-async function mopidyFunctionality(command, options) {
+async function mopidyFunctionality(command, options, user) {
   var response;
   const comm = commands.filter(f => f.name == command);
-  if (comm == null || options === undefined) {
-    response = `Unrecognised command`;
+  if (comm.length === 0) {
+    response = `Sorry, that was just a noise. Can you try an actual command?`;
   } else {
-    response = await comm[0].execute(options, mopidy).catch();
+    response = await comm[0].execute(mopidy, options, user, command).catch();
   }
   rtm.sendMessage(response, conversationId);
 }

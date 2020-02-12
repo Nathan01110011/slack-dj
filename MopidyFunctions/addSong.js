@@ -1,6 +1,36 @@
-// TODO: Searching by artist and confirmation of song choice
+// TODO: Confirmation of song choice
+// TODO: Add ability to specify artist
 
-async function addSong(options, mopidy) {
+var toBeQueued;
+var requestUser;
+
+async function addSong(mopidy, options, user, command) {
+  if (options === undefined && command === "play") {
+    return "Specify something to play.";
+  } else if (command === "play") {
+    return songCheck(mopidy, options, user);
+  } else if (
+    command === "yes" &&
+    toBeQueued !== undefined &&
+    user === requestUser
+  ) {
+    return songConfirmed(mopidy);
+  } else if (
+    command === "no" &&
+    toBeQueued !== undefined &&
+    user === requestUser
+  ) {
+    toBeQueued = undefined;
+    user = undefined;
+    return "Oh dear. Try a better search term.";
+  } else if (requestUser !== user) {
+    return "This wasn't your request!";
+  } else {
+    return "You need to ask for a song first.";
+  }
+}
+
+async function songCheck(mopidy, options, user) {
   const tracks = await mopidy.library
     .search({
       query: {
@@ -13,20 +43,27 @@ async function addSong(options, mopidy) {
     });
 
   if (tracks[0].tracks === undefined) {
-    return `Something is broke :(`;
+    return `Can't find anything like that :thinking_face:`;
   }
 
-  const track = tracks[0].tracks[0];
-  var trackSelected = track.name + ` by ` + track.artists[0].name;
-  mopidy.tracklist.add({ uris: [track.uri] });
+  toBeQueued = tracks[0].tracks[0];
+  requestUser = user;
+  var trackSelected = toBeQueued.name + ` by ` + toBeQueued.artists[0].name;
+  return `So that's "` + trackSelected + `" to be played?`;
+}
 
+async function songConfirmed(mopidy) {
+  mopidy.tracklist.add({ uris: [toBeQueued.uri] });
+  toBeQueued = undefined;
+  user = undefined;
   const currentState = await mopidy.playback.getState().catch(function(error) {
     return `Something is broke :(`;
   });
   if (currentState === `stopped`) {
     await mopidy.playback.play().catch();
+    return `Playing that now!`;
   }
-  return trackSelected + ` added to queue.`;
+  return `Song added to the queue.`;
 }
 
 module.exports.addSong = addSong;
