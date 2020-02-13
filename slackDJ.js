@@ -15,7 +15,7 @@ rtm.on(`hello`, async () => {
 });
 rtm.on(`message`, event => {
   console.log(event);
-  parseMessage(event);
+  if (event.subtype === undefined) parseMessage(event);
 });
 
 const mopidy = new Mopidy({
@@ -63,7 +63,7 @@ async function mopidyFunctionality(command, options, user) {
 
 // TODO: Better way to block users
 function userCheck(userID) {
-  if (userID === process.env.BAN_USER) {
+  if (process.env.BAN_USER.includes(userID)) {
     rtm.sendMessage(
       `Sorry, I've been ordered to ignore you :grinning:`,
       conversationId
