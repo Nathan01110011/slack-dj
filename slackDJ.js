@@ -32,7 +32,10 @@ mopidy.on(`state:online`, () => {
 mopidy.on(`event:trackPlaybackStarted`, () => {
   skipCount = 0;
 });
-mopidy.on(`event:trackPlaybackEnded`, () => mopidy.tracklist.clear());
+// mopidy.on(
+//   `event:playbackStateChanged { old_state: 'playing', new_state: 'stopped' }`,
+//   () => mopidy.tracklist.clear()
+// );
 
 function parseMessage(message) {
   const botCheck = message.text.split(/\s(.+)/);
