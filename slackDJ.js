@@ -28,14 +28,11 @@ mopidy.on(`state`, console.log);
 mopidy.on(`event`, console.log);
 mopidy.on(`state:online`, () => {
   rtm.sendMessage(`Throw me some tunes! I'm ready to go!`, conversationId);
+  mopidy.tracklist.setConsume({ value: true });
 });
 mopidy.on(`event:trackPlaybackStarted`, () => {
   skipCount = 0;
 });
-// mopidy.on(
-//   `event:playbackStateChanged { old_state: 'playing', new_state: 'stopped' }`,
-//   () => mopidy.tracklist.clear()
-// );
 
 function parseMessage(message) {
   const botCheck = message.text.split(/\s(.+)/);
