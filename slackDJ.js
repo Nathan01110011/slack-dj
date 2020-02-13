@@ -7,9 +7,6 @@ const token = process.env.SLACK_TOKEN;
 const botID = process.env.SLACK_DJ_ID;
 const conversationId = process.env.SLACK_CHANNEL;
 
-var skippers;
-var requestCheck;
-
 const rtm = new RTMClient(token);
 rtm.start().catch(console.error);
 rtm.on(`hello`, async () => {
@@ -35,6 +32,7 @@ mopidy.on(`state:online`, () => {
 mopidy.on(`event:trackPlaybackStarted`, () => {
   skipCount = 0;
 });
+mopidy.on(`event:trackPlaybackEnded`, () => mopidy.tracklist.clear());
 
 function parseMessage(message) {
   const botCheck = message.text.split(/\s(.+)/);

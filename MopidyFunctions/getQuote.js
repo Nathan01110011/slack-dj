@@ -13,7 +13,7 @@ const quoteArray = [
   `The proof is in the pudding, and the pudding, in this case, is football.`,
   `You've got to laugh when you fall off a sofa.`,
   `Right, I'll tell you an anecdote. In 1974 I was catching the London train from Crewe station. It was very crowded; I found myself in a last-minute rush for the one remaining seat beside a tall, good-looking man with collar-length hair, it was the seventies; buckaroo! I looked up and saw it was none other than Peter Purves, it was the height of his Blue Peter career. He said, 'You jammy b******' and quick as a flash, I replied, 'Don't be blue, Peter! Needless to say, I had the last laugh.`,
-  `I can read you like a book, and not a very good book. Especially no Bravo Two Zero by Andy McNabb, which actually improves with every read.`,
+  `I can read you like a book, and not a very good book. Especially not Bravo Two Zero by Andy McNabb, which actually improves with every read.`,
   `A detective series based in Norwich called "Swallow". Swallow is a detective who tackles vandalism. Bit of a maverick, not afraid to break the law if he thinks it's necessary. He's not a criminal, you know, but he will, perhaps, travel 80mph on the motorway if, for example, he wants to get somewhere quickly...Think about it. No one had heard of Oxford before Inspector Morse.`,
   `Later we'll be taking dedications for anyone wrongly turned down for planning permission. Also, I'll be asking: Which is the worst monger? Fish, iron, rumour or war?`,
   `Divorced. I've got access to the kids... But they don't wanna see me.`,

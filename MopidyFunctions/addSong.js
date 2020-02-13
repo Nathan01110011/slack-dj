@@ -1,5 +1,6 @@
-// TODO: Confirmation of song choice
+// TODO: Handle multiple requests from different users - arrays probably would work
 // TODO: Add ability to specify artist
+// TODO: Handle multiple artists for one song
 
 var toBeQueued;
 var requestUser;
