@@ -15,7 +15,8 @@ rtm.on(`hello`, async () => {
 });
 rtm.on(`message`, event => {
   console.log(event);
-  if (event.subtype === undefined) parseMessage(event);
+  if (event.subtype === undefined && event.channel === "CTMTVLQBH")
+    parseMessage(event);
 });
 
 const mopidy = new Mopidy({
