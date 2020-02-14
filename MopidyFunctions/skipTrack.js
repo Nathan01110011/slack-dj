@@ -1,6 +1,7 @@
 var currentSong;
 var skipCount = 0;
 var users = [];
+var difference=0
 
 async function skipTrack(mopidy, options, user) {
   await resetVarsCheck(mopidy).catch();
@@ -8,7 +9,12 @@ async function skipTrack(mopidy, options, user) {
   if (userCheck !== undefined) {
     return userCheck;
   }
-  return voteCountCheck(mopidy);
+  if (command === "keep") {
+    difference = -1;
+  } else {
+    difference = 1;
+  }
+  return voteCountCheck(mopidy, difference);
 }
 
 function multipleVoteCheck(user) {
@@ -33,12 +39,12 @@ async function resetVarsCheck(mopidy) {
 
 async function voteCountCheck(mopidy) {
   if (skipCount === 0) {
-    skipCount++;
+    skipCount + difference;
     currentSong = await mopidy.playback.getCurrentTrack();
     const count = 3 - skipCount;
     return "" + count + " more skips needed.";
   } else if (skipCount < 2) {
-    skipCount++;
+    skipCount + difference;
     const count = 3 - skipCount;
     return "" + count + " more skips needed.";
   } else {

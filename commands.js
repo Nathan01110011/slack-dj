@@ -17,6 +17,7 @@ const commands = [
   { name: `help`, execute: helpCommand },
   { name: `next`, execute: upNext },
   { name: `skip`, execute: skipTrack },
+  { name: `keep`, execute: skipTrack },
   { name: `quote`, execute: getQuote }
 ];
 
