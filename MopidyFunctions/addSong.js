@@ -4,6 +4,8 @@
 
 var toBeQueued;
 var requestUser;
+var songList = [];
+var userCooldown = [];
 
 async function addSong(mopidy, options, user, command) {
   if (options === undefined && command === "play") {
@@ -54,6 +56,10 @@ async function songCheck(mopidy, options, user) {
 }
 
 async function songConfirmed(mopidy) {
+  if (songList.includes(toBeQueued.uri)) {
+    return "nope";
+  }
+  songList.push(toBeQueued.uri);
   mopidy.tracklist.add({ uris: [toBeQueued.uri] });
   toBeQueued = undefined;
   user = undefined;

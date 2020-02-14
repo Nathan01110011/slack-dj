@@ -3,11 +3,11 @@ var skipCount = 0;
 var users = [];
 
 async function skipTrack(mopidy, options, user) {
+  await resetVarsCheck(mopidy).catch();
   const userCheck = multipleVoteCheck(user);
   if (userCheck !== undefined) {
     return userCheck;
   }
-  await resetVarsCheck(mopidy).catch();
   return voteCountCheck(mopidy);
 }
 
@@ -24,8 +24,6 @@ async function resetVarsCheck(mopidy) {
 
   if (currentSong === undefined) {
     currentSong === (await mopidy.playback.getCurrentTrack());
-    console.log(currentSong);
-    console.log(track);
   } else if (currentSong.name !== track.name) {
     currentSong = undefined;
     skipCount = 0;
@@ -34,7 +32,6 @@ async function resetVarsCheck(mopidy) {
 }
 
 async function voteCountCheck(mopidy) {
-  console.log("hit 3");
   if (skipCount === 0) {
     skipCount++;
     currentSong = await mopidy.playback.getCurrentTrack();
@@ -46,6 +43,7 @@ async function voteCountCheck(mopidy) {
     return "" + count + " more skips needed.";
   } else {
     mopidy.playback.next();
+    skipCount = 0;
     return "Okay then, I hope that wasn't an absolute *_tune and a half!_*";
   }
 }
