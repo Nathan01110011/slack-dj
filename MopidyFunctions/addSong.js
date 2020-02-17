@@ -45,7 +45,7 @@ async function songCheck(mopidy, options, user) {
       return `Something is broke :(`;
     });
 
-  if (tracks[0].tracks == undefined) {
+  if (tracks[0] == undefined) {
     return `Can't find anything like that :thinking_face:`;
   }
 
