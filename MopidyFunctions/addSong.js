@@ -37,7 +37,7 @@ async function songCheck(mopidy, options, user) {
   const tracks = await mopidy.library
     .search({
       query: {
-        track_name: options
+        track_name: [options]
       },
       uris: [`spotify:`]
     })
