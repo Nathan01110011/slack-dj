@@ -7,6 +7,7 @@ async function helpCommand() {
     `\n *next* : Show's the current track list` +
     `\n *belter* : Queues up an absolute belter` +
     `\n *skip* : Vote to skip the current song` +
+    `\n *keep* : Vote to keep the current song` +
     `\n *quote* : One of my classic quotes`;
 
   return helpInstructions;

@@ -38,7 +38,7 @@ async function voteCountCheck(mopidy, command) {
     users = [];
     return "Okay then, I hope that wasn't an absolute *_tune and a half!_*";
   }
-  return `Skip count is at ${skipCount}. `;
+  return `Skip count is at ${skipCount}.`;
 }
 
 module.exports.skipTrack = skipTrack;

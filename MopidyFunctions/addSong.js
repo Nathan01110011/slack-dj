@@ -11,7 +11,7 @@ async function addSong(mopidy, options, user, command) {
   if (options === undefined && command === "play") {
     return "Specify something to play.";
   } else if (command === "play") {
-    return songCheck(mopidy, options, user);
+    return songCheck(mopidy, options, user).catch();
   } else if (
     command === "yes" &&
     toBeQueued !== undefined &&
@@ -45,7 +45,7 @@ async function songCheck(mopidy, options, user) {
       return `Something is broke :(`;
     });
 
-  if (tracks[0].tracks === undefined) {
+  if (tracks[0].tracks == undefined) {
     return `Can't find anything like that :thinking_face:`;
   }
 
