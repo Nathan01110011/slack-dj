@@ -32,9 +32,6 @@ mopidy.on(`state:online`, () => {
   rtm.sendMessage(`Throw me some tunes! I'm ready to go!`, conversationId);
   mopidy.tracklist.setConsume({ value: true });
 });
-mopidy.on(`event:trackPlaybackStarted`, () => {
-  skipCount = 0;
-});
 
 function parseMessage(message) {
   const botCheck = message.text.split(/\s(.+)/);
@@ -56,7 +53,7 @@ async function mopidyFunctionality(command, options, user) {
   var response;
   const comm = commands.filter(f => f.name == command);
   if (comm.length === 0) {
-    response = `Sorry, that was just a noise. Can you try an actual command?`;
+    response = `Sorry, that doesn't seem like a valid command.`;
   } else {
     response = await comm[0].execute(mopidy, options, user, command).catch();
   }

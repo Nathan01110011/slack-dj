@@ -13,7 +13,7 @@ async function skipTrack(mopidy, options, user, command) {
 
 function multipleVoteCheck(user) {
   if (users.includes(user)) {
-    return "Only one vote allowed per song I'm afraid.";
+    return `Only one vote allowed per song I'm afraid.`;
   } else {
     users.push(user);
   }
@@ -36,7 +36,7 @@ async function voteCountCheck(mopidy, command) {
     mopidy.playback.next();
     skipCount = 0;
     users = [];
-    return "Okay then, I hope that wasn't an absolute *_tune and a half!_*";
+    return `Okay then, I hope that wasn't an absolute *_tune and a half!_*`;
   }
   return `Skip count is at ${skipCount}.`;
 }

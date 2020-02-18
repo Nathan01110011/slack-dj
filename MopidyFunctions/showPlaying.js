@@ -1,5 +1,3 @@
-// TODO : UP NEXT
-
 async function showPlaying(mopidy) {
   let currentlyPlaying;
   try {
