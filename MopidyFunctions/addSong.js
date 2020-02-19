@@ -9,7 +9,7 @@ async function addSong(mopidy, options, user, command) {
   if (options === undefined && command === "play") {
     return "Specify something to play.";
   } else if (command === "play") {
-    return songCheck(mopidy, options, user).catch();
+    return songCheck(mopidy, options, user, req).catch();
   } else if (command === "yes" && req.length > 0) {
     const confirmed = await songConfirmed(mopidy, req);
     return confirmed;
@@ -21,7 +21,10 @@ async function addSong(mopidy, options, user, command) {
   }
 }
 
-async function songCheck(mopidy, options, user) {
+async function songCheck(mopidy, options, user, req) {
+  if (req) {
+    toBeQueued.splice(toBeQueued.indexOf(req));
+  }
   const tracks = await mopidy.library
     .search({
       query: {
