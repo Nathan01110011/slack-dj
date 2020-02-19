@@ -1,4 +1,5 @@
 // TODO: Handle multiple artists for one song
+// TODO: Cooldown on song requests
 
 var toBeQueued = [];
 var songList = [];
