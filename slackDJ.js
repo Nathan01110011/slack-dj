@@ -1,4 +1,4 @@
-const { parseMessage } = require("./requestWorkflow");
+const { parseMessage } = require("./lib/requestWorkflow");
 const { RTMClient } = require(`@slack/rtm-api`);
 const nodeCleanup = require(`node-cleanup`);
 const Mopidy = require(`mopidy`);
