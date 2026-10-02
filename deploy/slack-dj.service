@@ -1,0 +1,18 @@
+[Unit]
+Description=Slack DJ
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=exec
+User=slackdj
+Group=slackdj
+WorkingDirectory=/opt/slack-dj/current
+EnvironmentFile=/etc/slack-dj/slack-dj.env
+ExecStart=/opt/slack-dj/current/bin/slack-dj
+Restart=on-failure
+RestartSec=10s
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
