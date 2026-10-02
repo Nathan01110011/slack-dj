@@ -1,0 +1,14 @@
+# Copy to .localenv and fill in the values. Never commit real tokens.
+SLACK_BOT_TOKEN=
+SLACK_APP_TOKEN=
+SLACK_CHANNEL=
+
+# Optional
+SLACK_DJ_ID=
+BAN_USER=
+MOPIDY_RPC_URL=http://localhost:6680/mopidy/rpc
+MOPIDY_SPOTIFY_CLIENT_ID=
+MOPIDY_SPOTIFY_CLIENT_SECRET=
+MOPIDY_AUDIO_OUTPUT=autoaudiosink
+
+# runLocal writes a temporary mopidy.conf using the Spotify values above.
