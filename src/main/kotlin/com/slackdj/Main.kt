@@ -249,10 +249,16 @@ fun main() {
         }
         if (state == null) announcements.disconnected()
         else {
+            if (state == "stopped") try {
+                dj.recoverStoppedPlayback()?.let { log.info("Restarted queued playback for {} after Mopidy stopped", it) }
+            } catch (error: Exception) {
+                log.error("Could not restart queued playback", error)
+            }
             val track = if (state == "playing") try { music.currentTrack() } catch (error: Exception) {
                 log.warn("Could not read current Mopidy track", error)
                 null
             } else null
+            if (track != null) dj.observedPlaying(track)
             announcements.observe(state, track)?.let(::postNowPlaying)
         }
         checked.set(true)

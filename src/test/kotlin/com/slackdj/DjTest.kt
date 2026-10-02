@@ -67,6 +67,35 @@ class DjTest {
         assertEquals("U1", dj.requesterFor(first))
     }
 
+    @Test
+    fun queuedSongStartsIfPlaybackStopsJustAfterItWasAdded() {
+        val music = FakeMusic().apply { current = first }
+        val dj = Dj(music)
+        dj.queue(first, "U1")
+        dj.observedPlaying(first)
+
+        assertTrue(dj.queue(second, "U2").queued)
+        assertEquals(0, music.plays)
+        music.playbackState = "stopped"
+
+        assertEquals(second.uri, dj.recoverStoppedPlayback())
+        assertEquals(listOf<Long?>(2L), music.playedTlids)
+        assertEquals("playing", music.playbackState)
+        dj.observedPlaying(second)
+        music.playbackState = "stopped"
+        assertEquals(null, dj.recoverStoppedPlayback())
+    }
+
+    @Test
+    fun recoveryDoesNotOverridePausedPlayback() {
+        val music = FakeMusic()
+        val dj = Dj(music)
+        dj.queue(first, "U1")
+        music.playbackState = "paused"
+        assertEquals(null, dj.recoverStoppedPlayback())
+        assertEquals(0, music.plays)
+    }
+
     private class FakeMusic : MusicServer {
         val results = mutableMapOf<String, List<Track>>()
         val added = mutableListOf<String>()
@@ -74,6 +103,7 @@ class DjTest {
         var playbackState = "playing"
         var skips = 0
         var plays = 0
+        val playedTlids = mutableListOf<Long?>()
 
         override fun state() = playbackState
         override fun currentTrack() = current
@@ -81,8 +111,8 @@ class DjTest {
         override fun lookup(uri: String) = results[uri].orEmpty()
         override fun artistSongs(query: String) = results[query].orEmpty()
         override fun belters() = emptyList<Track>()
-        override fun add(uri: String) { added.add(uri) }
-        override fun play() { plays++; playbackState = "playing" }
+        override fun add(uri: String): Long { added.add(uri); return added.size.toLong() }
+        override fun play(tlid: Long?) { plays++; playedTlids.add(tlid); playbackState = "playing" }
         override fun pause() { playbackState = "paused" }
         override fun next() { skips++ }
         override fun queuedTracks() = emptyList<Track>()
