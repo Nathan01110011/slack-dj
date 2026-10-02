@@ -59,7 +59,7 @@ class MopidyClient(
             image.path("uri").asText("").takeIf { it.startsWith("https://") }
                 ?.let { image.path("width").asInt(0) to it }
         }
-        .minByOrNull { (width, _) -> if (width >= 300) width else 10000 - width }
+        .maxByOrNull { (width, _) -> width }
         ?.second
     override fun search(query: String) = call("library.search", mapOf("query" to mapOf("any" to listOf(query)), "uris" to listOf("spotify:"))).searchTracks()
     override fun lookup(uri: String): List<Track> = call("library.lookup", mapOf("uris" to listOf(uri)), Duration.ofSeconds(30))

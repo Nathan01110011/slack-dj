@@ -25,7 +25,8 @@ class SongRequestsTest {
     @Test
     fun songIsPrivateUntilItsOwnerConfirms() {
         val music = FakeMusic().apply { songResults = listOf(tracks[0]) }
-        val requests = SongRequests(music, Dj(music))
+        val dj = Dj(music)
+        val requests = SongRequests(music, dj)
         val prompt = assertIs<RequestView.Confirm>(requests.song("U1", "C1", "Song 1"))
         assertTrue(music.added.isEmpty())
         assertIs<RequestView.Notice>(requests.confirm("U2", "C1", prompt.id))
@@ -34,6 +35,7 @@ class SongRequestsTest {
         val queued = assertIs<RequestView.Queued>(requests.confirm("U1", "C1", prompt.id))
         assertEquals(tracks[0], queued.track)
         assertEquals(listOf(tracks[0].uri), music.added)
+        assertEquals("U1", dj.requesterFor(tracks[0]))
         assertIs<RequestView.Notice>(requests.confirm("U1", "C1", prompt.id))
         assertEquals(1, music.added.size)
     }

@@ -1,7 +1,6 @@
 package com.slackdj
 
 import com.slack.api.model.block.CardBlock
-import com.slack.api.model.block.SectionBlock
 import com.slack.api.model.block.element.ImageElement
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -27,13 +26,18 @@ class PlaybackAnnouncementsTest {
 
     @Test
     fun nowPlayingUsesAlbumArtWhenAvailable() {
-        val withArt = SlackViews.nowPlaying(first, "https://i.scdn.co/image/example")
-        assertEquals(2, withArt.size)
-        val card = withArt[1] as CardBlock
-        assertEquals("https://i.scdn.co/image/example", (card.icon as ImageElement).imageUrl)
+        val withArt = SlackViews.nowPlaying(first, "https://i.scdn.co/image/example", "U123")
+        assertEquals(1, withArt.size)
+        val card = withArt.single() as CardBlock
+        assertEquals("https://i.scdn.co/image/example", (card.heroImage as ImageElement).imageUrl)
+        assertNull(card.icon)
         assertTrue(card.title.toString().contains("First"))
         assertTrue(card.subtitle.toString().contains("Artist"))
-        assertEquals(1, SlackViews.nowPlaying(first, null).size)
-        assertTrue(SlackViews.nowPlaying(first, null).single() is SectionBlock)
+        assertTrue(card.body.toString().contains("Now playing"))
+        assertTrue(card.body.toString().contains("<@U123>"))
+        val withoutArt = SlackViews.nowPlaying(first, null, null).single() as CardBlock
+        assertNull(withoutArt.heroImage)
+        assertTrue(withoutArt.body.toString().contains("Now playing"))
+        assertTrue(!withoutArt.body.toString().contains("Requested by"))
     }
 }

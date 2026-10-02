@@ -53,16 +53,15 @@ internal object SlackViews {
 
     fun safe(text: String): String = text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
-    fun nowPlaying(track: Track, imageUrl: String?): List<LayoutBlock> {
-        if (imageUrl == null) return listOf(section("*Now playing*\n*${safe(track.name)}* — ${safe(track.artist)}"))
-        return listOf(
-            section(":musical_note: *Now playing*"),
-            CardBlock.builder()
-                .icon(ImageElement.builder().imageUrl(imageUrl).altText("Album art for ${track.name}").build())
-                .title(MarkdownTextObject.builder().text("*${safe(track.name)}*").build())
-                .subtitle(MarkdownTextObject.builder().text(safe(track.artist)).build())
-                .build(),
-        )
+    fun nowPlaying(track: Track, imageUrl: String?, requester: String?): List<LayoutBlock> {
+        val card = CardBlock.builder()
+            .title(MarkdownTextObject.builder().text("*${safe(track.name)}*").build())
+            .subtitle(MarkdownTextObject.builder().text(safe(track.artist)).build())
+            .body(MarkdownTextObject.builder().text(":musical_note: *Now playing*" +
+                (requester?.let { " · Requested by <@${safe(it)}>" } ?: "")).build())
+        if (imageUrl != null) card.heroImage(ImageElement.builder()
+            .imageUrl(imageUrl).altText("Album art for ${track.name}").build())
+        return listOf(card.build())
     }
 
     private fun dismissButton(value: String? = null): ButtonElement = button("Dismiss", "dj_dismiss", value)

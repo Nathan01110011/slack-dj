@@ -21,6 +21,8 @@ class DjTest {
         assertEquals("oh dear", dj.command("A", "no"))
         assertEquals("Song added to the queue.", dj.command("B", "yes"))
         assertEquals(listOf(second.uri), music.added)
+        assertEquals("B", dj.requesterFor(second))
+        assertEquals(null, dj.requesterFor(first))
         assertEquals("Have you requested a song yet?", dj.command("A", "yes"))
     }
 
@@ -53,6 +55,16 @@ class DjTest {
             dj.command("B", "play first")
             dj.command("B", "yes")
         })
+    }
+
+    @Test
+    fun directQueueRecordsRequesterOnlyWhenAccepted() {
+        val music = FakeMusic()
+        val dj = Dj(music)
+        assertTrue(dj.queue(first, "U1").queued)
+        assertEquals("U1", dj.requesterFor(first))
+        assertTrue(!dj.queue(first, "U2").queued)
+        assertEquals("U1", dj.requesterFor(first))
     }
 
     private class FakeMusic : MusicServer {

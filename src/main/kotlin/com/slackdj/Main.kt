@@ -57,14 +57,14 @@ fun main() {
     }
 
     fun postNowPlaying(track: Track) {
+        val requester = dj.requesterFor(track)
         val imageUrl = try { music.imageUrl(track.uri) } catch (error: Exception) {
             log.warn("Could not load album art for {}", track.uri, error)
             null
         }
         try {
             val response = slack.chatPostMessage {
-                it.channel(channel).text("Now playing: ${track.label}")
-                    .blocks(SlackViews.nowPlaying(track, imageUrl))
+                it.channel(channel).blocks(SlackViews.nowPlaying(track, imageUrl, requester))
             }
             if (response.isOk) log.info("Announced now playing: {}", track.label)
             else log.error("Now-playing Slack post failed: {}", response.error)
@@ -182,9 +182,6 @@ fun main() {
                     } catch (error: Exception) {
                         log.error("Replacing private Slack prompt failed", error)
                         postPrivate(user, view)
-                    }
-                    if (view is RequestView.Queued) {
-                        post("${SlackViews.safe(view.track.name)} queued by <@$user>")
                     }
                 }
             }
