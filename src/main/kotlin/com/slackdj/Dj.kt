@@ -6,6 +6,7 @@ import kotlin.random.Random
 class Dj(private val music: MusicServer, private val random: Random = Random.Default) {
     private val pending = mutableMapOf<String, Track>()
     private val played = mutableSetOf<String>()
+    private val requesters = mutableMapOf<String, String>()
     private val voters = mutableSetOf<String>()
     private var votedTrackUri: String? = null
     private var skipCount = 0
@@ -13,14 +14,18 @@ class Dj(private val music: MusicServer, private val random: Random = Random.Def
     data class QueueResult(val queued: Boolean, val started: Boolean = false)
 
     @Synchronized
-    fun queue(track: Track): QueueResult {
+    fun queue(track: Track, requester: String? = null): QueueResult {
         if (track.uri in played) return QueueResult(false)
         music.add(track.uri)
+        if (requester != null) requesters[track.uri] = requester
         val started = music.state() == "stopped"
         if (started) music.play()
         played.add(track.uri)
         return QueueResult(true, started)
     }
+
+    @Synchronized
+    fun requesterFor(track: Track): String? = requesters[track.uri]
 
     @Synchronized
     fun command(user: String, text: String): String {
@@ -41,6 +46,7 @@ class Dj(private val music: MusicServer, private val random: Random = Random.Def
                 .joinToString("\n").ifEmpty { "Nothing queued at the minute." }
             "belter" -> music.belters().randomOrNull(random)?.let {
                 music.add(it.uri)
+                requesters[it.uri] = user
                 "Coming up: ${it.label}"
             } ?: "Couldn't find a belter right now."
             "play" -> {
@@ -54,7 +60,7 @@ class Dj(private val music: MusicServer, private val random: Random = Random.Def
             "yes" -> {
                 val track = pending[user] ?: return "Have you requested a song yet?"
                 pending.remove(user)
-                val result = queue(track)
+                val result = queue(track, user)
                 when {
                     !result.queued -> "This has already been played today."
                     result.started -> "Playing that now!"

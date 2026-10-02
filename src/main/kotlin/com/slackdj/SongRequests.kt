@@ -99,7 +99,7 @@ class SongRequests(
         val session = session(id, user, channel) ?: return expired()
         val track = session.selection?.let { session.tracks.getOrNull(it) } ?: return expired()
         sessions.remove(id)
-        val result = dj.queue(track)
+        val result = dj.queue(track, user)
         return if (result.queued) RequestView.Queued(track, result.started)
         else RequestView.Notice("That song has already been queued today. Try another one.")
     }

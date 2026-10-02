@@ -38,7 +38,7 @@ Use `/song <song name>` for the first matching track, or pass a Spotify track UR
 
 Use `/artist <artist name>` (or a Spotify artist URL, URI, or bare artist ID) to see five private song choices. **Show five other songs** shows one more page of five. Duplicate titles from different albums and remasters are collapsed. After that, use `/song` if you want a specific track. Selecting a number replaces the choices with a private confirmation step. Every private card has **Dismiss**, which removes it without queueing anything. Searches and choices expire after 30 minutes and reset when the bot restarts.
 
-When Mopidy starts playing a new track, the bot automatically posts a now-playing message in the DJ channel. When Mopidy provides album art, Slack displays it as a small icon to the left of the song title and artist. There is no `/nowplaying` slash command to configure. Playback is checked every two seconds, so the announcement may be slightly delayed.
+When Mopidy starts playing a new track, the bot automatically posts a single now-playing card in the DJ channel. It includes the requester when the bot queued the track, plus album art as a small icon beside the song title and artist when Mopidy provides it. Tracks added outside the bot have no requester shown. There is no `/nowplaying` slash command to configure. Playback is checked every two seconds, so the announcement may be slightly delayed.
 
 Slash command results and button responses are ephemeral: only the requester sees them, and Slack may discard them after a refresh. The bot only uses the configured `SLACK_CHANNEL`. The Gradle window logs command and button events, music availability, and posting errors.
 
