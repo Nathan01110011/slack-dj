@@ -29,15 +29,15 @@ class PlaybackAnnouncementsTest {
         val withArt = SlackViews.nowPlaying(first, "https://i.scdn.co/image/example", "U123")
         assertEquals(1, withArt.size)
         val card = withArt.single() as CardBlock
-        assertEquals("https://i.scdn.co/image/example", (card.icon as ImageElement).imageUrl)
+        assertEquals("https://i.scdn.co/image/example", (card.heroImage as ImageElement).imageUrl)
+        assertNull(card.icon)
         assertTrue(card.title.toString().contains("First"))
         assertTrue(card.subtitle.toString().contains("Artist"))
         assertTrue(card.body.toString().contains("Now playing"))
         assertTrue(card.body.toString().contains("<@U123>"))
         val withoutArt = SlackViews.nowPlaying(first, null, null).single() as CardBlock
-        assertNull(withoutArt.icon)
+        assertNull(withoutArt.heroImage)
         assertTrue(withoutArt.body.toString().contains("Now playing"))
         assertTrue(!withoutArt.body.toString().contains("Requested by"))
-        assertTrue(SlackViews.nowPlayingFallback(first, "U123").contains("<@U123>"))
     }
 }

@@ -64,8 +64,7 @@ fun main() {
         }
         try {
             val response = slack.chatPostMessage {
-                it.channel(channel).text(SlackViews.nowPlayingFallback(track, requester))
-                    .blocks(SlackViews.nowPlaying(track, imageUrl, requester))
+                it.channel(channel).blocks(SlackViews.nowPlaying(track, imageUrl, requester))
             }
             if (response.isOk) log.info("Announced now playing: {}", track.label)
             else log.error("Now-playing Slack post failed: {}", response.error)
@@ -183,9 +182,6 @@ fun main() {
                     } catch (error: Exception) {
                         log.error("Replacing private Slack prompt failed", error)
                         postPrivate(user, view)
-                    }
-                    if (view is RequestView.Queued) {
-                        post("${SlackViews.safe(view.track.name)} queued by <@$user>")
                     }
                 }
             }

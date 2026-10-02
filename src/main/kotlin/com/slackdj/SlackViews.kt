@@ -53,16 +53,13 @@ internal object SlackViews {
 
     fun safe(text: String): String = text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
-    fun nowPlayingFallback(track: Track, requester: String?): String =
-        "Now playing: ${track.label}" + (requester?.let { " · requested by <@$it>" } ?: "")
-
     fun nowPlaying(track: Track, imageUrl: String?, requester: String?): List<LayoutBlock> {
         val card = CardBlock.builder()
             .title(MarkdownTextObject.builder().text("*${safe(track.name)}*").build())
             .subtitle(MarkdownTextObject.builder().text(safe(track.artist)).build())
             .body(MarkdownTextObject.builder().text(":musical_note: *Now playing*" +
                 (requester?.let { " · Requested by <@${safe(it)}>" } ?: "")).build())
-        if (imageUrl != null) card.icon(ImageElement.builder()
+        if (imageUrl != null) card.heroImage(ImageElement.builder()
             .imageUrl(imageUrl).altText("Album art for ${track.name}").build())
         return listOf(card.build())
     }
