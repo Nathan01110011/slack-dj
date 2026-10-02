@@ -21,8 +21,8 @@ interface MusicServer {
     fun lookup(uri: String): List<Track>
     fun artistSongs(query: String): List<Track>
     fun belters(): List<Track>
-    fun add(uri: String)
-    fun play()
+    fun add(uri: String): Long
+    fun play(tlid: Long? = null)
     fun pause()
     fun next()
     fun queuedTracks(): List<Track>
@@ -74,8 +74,10 @@ class MopidyClient(
         return tracks.distinctBy { SongIdentity.key(it) }.take(10)
     }
     override fun belters() = call("library.search", mapOf("query" to mapOf("uri" to listOf(BELTER_PLAYLIST)), "uris" to listOf("spotify:"))).searchTracks()
-    override fun add(uri: String) { call("tracklist.add", mapOf("uris" to listOf(uri))) }
-    override fun play() { call("playback.play") }
+    override fun add(uri: String): Long = call("tracklist.add", mapOf("uris" to listOf(uri)))
+        .firstOrNull()?.path("tlid")?.takeUnless { it.isNull || it.isMissingNode }?.asLong()
+        ?: error("Mopidy did not add track $uri to the tracklist")
+    override fun play(tlid: Long?) { call("playback.play", if (tlid == null) emptyMap() else mapOf("tlid" to tlid)) }
     override fun pause() { call("playback.pause") }
     override fun next() { call("playback.next") }
     override fun setConsume(enabled: Boolean) { call("tracklist.set_consume", mapOf("value" to enabled)) }

@@ -146,8 +146,8 @@ class SongRequestsTest {
         override fun lookup(uri: String): List<Track> { lookedUp = uri; return lookupResults }
         override fun artistSongs(query: String) = artistResults
         override fun belters() = emptyList<Track>()
-        override fun add(uri: String) { added.add(uri) }
-        override fun play() = Unit
+        override fun add(uri: String): Long { added.add(uri); return added.size.toLong() }
+        override fun play(tlid: Long?) = Unit
         override fun pause() = Unit
         override fun next() = Unit
         override fun queuedTracks() = emptyList<Track>()

@@ -7,6 +7,7 @@ class Dj(private val music: MusicServer, private val random: Random = Random.Def
     private val pending = mutableMapOf<String, Track>()
     private val played = mutableSetOf<String>()
     private val requesters = mutableMapOf<String, String>()
+    private val awaitingPlayback = linkedMapOf<String, Long>()
     private val voters = mutableSetOf<String>()
     private var votedTrackUri: String? = null
     private var skipCount = 0
@@ -16,12 +17,27 @@ class Dj(private val music: MusicServer, private val random: Random = Random.Def
     @Synchronized
     fun queue(track: Track, requester: String? = null): QueueResult {
         if (track.uri in played) return QueueResult(false)
-        music.add(track.uri)
+        val tlid = music.add(track.uri)
+        awaitingPlayback[track.uri] = tlid
         if (requester != null) requesters[track.uri] = requester
-        val started = music.state() == "stopped"
-        if (started) music.play()
         played.add(track.uri)
+        val started = music.state() == "stopped"
+        if (started) music.play(tlid)
         return QueueResult(true, started)
+    }
+
+    @Synchronized
+    fun observedPlaying(track: Track) {
+        awaitingPlayback.remove(track.uri)
+    }
+
+    /** Mopidy can stop just after a queue-time state check. Start the oldest still-pending TLID. */
+    @Synchronized
+    fun recoverStoppedPlayback(): String? {
+        val (uri, tlid) = awaitingPlayback.entries.firstOrNull() ?: return null
+        if (music.state() != "stopped") return null
+        music.play(tlid)
+        return uri
     }
 
     @Synchronized
@@ -45,9 +61,8 @@ class Dj(private val music: MusicServer, private val random: Random = Random.Def
             "next" -> music.queuedTracks().mapIndexed { index, track -> "${index + 1}) ${track.label}" }
                 .joinToString("\n").ifEmpty { "Nothing queued at the minute." }
             "belter" -> music.belters().randomOrNull(random)?.let {
-                music.add(it.uri)
-                requesters[it.uri] = user
-                "Coming up: ${it.label}"
+                val result = queue(it, user)
+                if (result.queued) "Coming up: ${it.label}" else "This has already been played today."
             } ?: "Couldn't find a belter right now."
             "play" -> {
                 if (option.isEmpty()) "Specify something to play."
