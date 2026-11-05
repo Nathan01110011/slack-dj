@@ -18,19 +18,42 @@ Fill in the gitignored `.localenv` file in the project root, or set these enviro
 | `SLACK_DJ_ID` | Optional bot user ID for reference; the app obtains the correct ID from Slack at startup |
 | `BAN_USER` | Optional comma or space separated list of blocked user IDs |
 | `MOPIDY_RPC_URL` | Optional Mopidy RPC URL |
-| `MOPIDY_SPOTIFY_CLIENT_ID` | Spotify client ID from [Mopidy authentication](https://mopidy.com/ext/spotify/#authentication), required for `runLocal` |
-| `MOPIDY_SPOTIFY_CLIENT_SECRET` | Matching Spotify client secret, required for `runLocal` |
+| `MOPIDY_SPOTIFY_CLIENT_ID` | Spotify client ID from [Mopidy authentication](https://mopidy.com/ext/spotify/#authentication), required for local Mopidy startup |
+| `MOPIDY_SPOTIFY_CLIENT_SECRET` | Matching Spotify client secret, required for local Mopidy startup |
 | `MOPIDY_AUDIO_OUTPUT` | Optional GStreamer audio output; defaults to `autoaudiosink` |
 
-The Slack tokens and Spotify client secret are secrets. Keep `.localenv` private. `runLocal` writes a temporary Mopidy config with the Spotify values, restricts it to the current user, and removes it at shutdown.
+The Slack tokens and Spotify client secret are secrets. Keep `.localenv` private. Local Mopidy startup writes a temporary config with the Spotify values, restricts it to the current user, and removes it at shutdown.
 
 ### Local macOS playback
 
-Run `./gradlew setupMopidyMac` once. It installs Mopidy and Mopidy-Spotify with Homebrew and builds the GStreamer Spotify playback plugin in `.local/mopidy/plugins`. The setup may take a while because it compiles native dependencies. Then fill in the Spotify fields in `.localenv` and run `./gradlew runLocal`. This starts Mopidy and the Kotlin bot together; stopping the bot also stops the Mopidy process it started. Audio goes to the Mac's default output unless you set `MOPIDY_AUDIO_OUTPUT`.
+Run `./gradlew setupMopidyMac` once. It installs Mopidy and Mopidy-Spotify with Homebrew and builds the GStreamer Spotify playback plugin in `.local/mopidy/plugins`. The setup may take a while because it compiles native dependencies. Then fill in the Spotify fields in `.localenv` and run `./scripts/run-local-macos.sh`. The script builds the installed distribution, lets Gradle exit, and launches the app directly, so there is no permanently executing Gradle task. It starts Mopidy and the Kotlin bot together; Ctrl-C stops the bot and the Mopidy process it started. Audio goes to the Mac's default output unless you set `MOPIDY_AUDIO_OUTPUT`.
 
-Spotify search can work even when playback authentication fails with `GStreamer error: Resource not found`. Mopidy-Spotify [documents this upstream issue](https://github.com/mopidy/mopidy-spotify/issues/437). If it happens, stop `runLocal`, run `./gradlew setupSpotifyPlaybackAuthMac`, complete the Spotify sign-in shown by the librespot helper, then restart `./gradlew runLocal`. This creates a separate playback credential cache at `~/Library/Application Support/mopidy/spotify/credentials-cache/credentials.json`; your Spotify client ID and secret in `.localenv` remain unchanged. The task backs up any existing credential file and restricts file permissions. Spotify Premium is required for Mopidy-Spotify playback.
+Spotify search can work even when playback authentication fails with `GStreamer error: Resource not found`. Mopidy-Spotify [documents this upstream issue](https://github.com/mopidy/mopidy-spotify/issues/437). If it happens, stop the local launcher, run `./gradlew setupSpotifyPlaybackAuthMac`, complete the Spotify sign-in shown by the librespot helper, then restart `./scripts/run-local-macos.sh`. This creates a separate playback credential cache at `~/Library/Application Support/mopidy/spotify/credentials-cache/credentials.json`; your Spotify client ID and secret in `.localenv` remain unchanged. The task backs up any existing credential file and restricts file permissions. Spotify Premium is required for Mopidy-Spotify playback.
 
-On a future host, configure Mopidy there and run the bot with `./gradlew run`; it will connect to `MOPIDY_RPC_URL` without starting a local Mopidy process. Run tests with `./gradlew test`.
+The old `./gradlew runLocal` still works for development, but intentionally keeps Gradle attached to the running process.
+
+### Build and deliver
+
+Run `./gradlew clean test distZip` to produce `build/distributions/slack-dj.zip`. GitHub Actions runs the same build for PRs and merges and uploads it as the `slack-dj-distribution` workflow artifact (download and extract that artifact to get `slack-dj.zip`). The app ZIP contains its dependencies, launchers for Unix and Windows, and the `deploy/` templates; it does not include `.localenv`, Spotify credentials, or Mopidy itself. The target machine needs Java 21, but not Gradle. Mopidy runs separately there and the bot connects through `MOPIDY_RPC_URL`.
+
+For a headless Raspberry Pi, copy the ZIP to the Pi and use a fresh release directory for each version. For a first installation (substitute your ZIP's location):
+
+```sh
+sudo adduser --system --group --no-create-home slackdj
+sudo install -d -m 0755 /opt/slack-dj/releases/initial
+sudo unzip slack-dj.zip -d /opt/slack-dj/releases/initial
+sudo ln -s /opt/slack-dj/releases/initial/slack-dj /opt/slack-dj/current
+sudo install -d -m 0700 /etc/slack-dj
+sudo install -m 0600 /opt/slack-dj/current/deploy/slack-dj.env.example /etc/slack-dj/slack-dj.env
+sudoedit /etc/slack-dj/slack-dj.env
+sudo install -m 0644 /opt/slack-dj/current/deploy/slack-dj.service /etc/systemd/system/slack-dj.service
+sudo systemctl daemon-reload
+sudo systemctl enable --now slack-dj
+```
+
+Fill in the Slack tokens and channel ID in `/etc/slack-dj/slack-dj.env`. Set the Mopidy URL to the Pi's local Mopidy or another reachable host. Configure Spotify credentials in Mopidy's own config on that host; the bot service does not start Mopidy. Check `sudo systemctl status slack-dj` and follow logs with `sudo journalctl -u slack-dj -f`.
+
+For updates, unzip the new ZIP into a *new* directory under `/opt/slack-dj/releases/`, point `/opt/slack-dj/current` to that release, and run `sudo systemctl restart slack-dj`. Keep the previous release so you can point the symlink back if needed. Leave the root-readable env file in `/etc/slack-dj/`; never put secrets inside the ZIP.
 
 ## Requesting music
 

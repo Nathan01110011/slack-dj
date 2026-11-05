@@ -25,6 +25,14 @@ application {
     mainClass.set("com.slackdj.MainKt")
 }
 
+distributions {
+    main {
+        contents {
+            from("deploy") { into("deploy") }
+        }
+    }
+}
+
 tasks.register<Exec>("setupMopidyMac") {
     group = "application"
     description = "Install Mopidy and build the Spotify playback plugin on macOS"
